@@ -1,24 +1,40 @@
 <?php
 
-switch ($_SERVER['REQUEST_URI']) {
+switch (strtok($_SERVER["REQUEST_URI"], '?')) {
     case '/':
         if ($_SERVER['REQUEST_METHOD'] === "GET") {
-            json_response(['Hello', 'API']);
+            sendResponse(['Hello', 'API']);
             break;
         }
         break;
     case '/students':
         if ($_SERVER['REQUEST_METHOD'] === "GET") {
             include_once "models/student.php";
-            json_response(Student::getAll());
+            sendResponse(Student::getAll());
             break;
+        }
+        break;
+    case '/student':
+        if ($_SERVER['REQUEST_METHOD'] === "DELETE") {
+            if (empty($_GET['id']))
+                sendResponse(400, 'missing required query parameter `id`');
+            else {
+                $id = $_GET['id'];
+
+                include_once "models/student.php";
+                try {
+                    $student = new Student($id);
+                    $student->delete();
+                    $student->save();
+                    sendResponse();
+                } catch (Exception $e) {
+                    sendResponse(400, $e->getMessage());
+                }
+                break;
+            }
         }
         break;
 }
 
 // 404
-ob_start();
-header("X-PHP-Response-Code: 404", true, 404);
-ob_end_flush();
-ob_flush();
-flush();
+//sendResponse(404);
