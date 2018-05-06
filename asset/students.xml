@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <students>
- <student>
-  <student_id>anna</student_id>
-  <email>anna112@gmail.com</email>
-  <firstname>Anna</firstname>
-  <lastname>Lee</lastname>
-  <address>12 Sesame St, Glen Waverley, VIC, 3149</address>
- </student>
+    <student>
+        <student_id>lanti</student_id>
+        <email>franklan118@gmail.com</email>
+        <firstname>Frank</firstname>
+        <lastname>Lan</lastname>
+        <address>3/4 Meyer Rd, Burwood, VIC, 3125</address>
+    </student>
+    <student>
+        <student_id>anna</student_id>
+        <email>anna112@gmail.com</email>
+        <firstname>Anna</firstname>
+        <lastname>Lee</lastname>
+        <address>12 Sesame St, Glen Waverley, VIC, 3149</address>
+    </student>
 </students>
