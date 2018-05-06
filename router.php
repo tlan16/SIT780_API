@@ -143,4 +143,4 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
 }
 
 // 404
-//sendResponse(404);
+@sendResponse(404);
