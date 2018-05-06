@@ -134,6 +134,12 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
             break;
         }
         break;
+    case '/sensor':
+        $filePath = dirname(__FILE__) . "/asset/sensor.json";
+        if (file_exists($filePath))
+            sendResponse(200, json_decode(file_get_contents($filePath), true));
+        else sendResponse(500, 'missing sensor data file.');
+        break;
 }
 
 // 404
