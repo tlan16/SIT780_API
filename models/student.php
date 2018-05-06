@@ -8,6 +8,26 @@ class Student
     private $id;
 
     /**
+     * @var string $email
+     */
+    private $email;
+
+    /**
+     * @var string $firstname
+     */
+    private $firstname;
+
+    /**
+     * @var string $lastname
+     */
+    private $lastname;
+
+    /**
+     * @var string $address
+     */
+    private $address;
+
+    /**
      * @var array $students
      */
     private $students = array();
@@ -15,17 +35,91 @@ class Student
     /**
      * Student constructor.
      * @param string $id
-     *
-     * @throws Exception
      */
     public function __construct($id)
     {
         $this->students = self::getAll();
-
-        if (!$this->students[$id])
-            throw new Exception("student with id `$id` does not exist.");
-
         $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     */
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirstname(): string
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * @param string $firstname
+     */
+    public function setFirstname(string $firstname): void
+    {
+        $this->firstname = $firstname;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastname(): string
+    {
+        return $this->lastname;
+    }
+
+    /**
+     * @param string $lastname
+     */
+    public function setLastname(string $lastname): void
+    {
+        $this->lastname = $lastname;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress(): string
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress(string $address): void
+    {
+        $this->address = $address;
     }
 
     public function delete()
@@ -33,7 +127,28 @@ class Student
         unset($this->students[$this->id]);
     }
 
+    /**
+     * Save students
+     */
     public function save()
+    {
+        if ($this->id) {
+            // init new student
+            if (!$this->students[$this->id])
+                $this->students[$this->id] = array(
+                    'student_id' => $this->id,
+                );
+
+            $this->students[$this->id]['email'] = $this->email;
+            $this->students[$this->id]['firstname'] = $this->firstname;
+            $this->students[$this->id]['lastname'] = $this->lastname;
+            $this->students[$this->id]['address'] = $this->address;
+        }
+
+        $this->writeToXml();
+    }
+
+    private function writeToXml()
     {
         $xw = xmlwriter_open_memory();
         xmlwriter_set_indent($xw, 1);
@@ -104,5 +219,11 @@ class Student
     private static function getDataFilePath()
     {
         return dirname(__FILE__) . "/../asset/students.xml";
+    }
+
+    public static function getById($id)
+    {
+        if (isset(self::getAll()[$id]))
+            return new self($id);
     }
 }
