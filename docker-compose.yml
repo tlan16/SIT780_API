@@ -1,0 +1,9 @@
+version: '3'
+services:
+  oracle:
+    build: .
+    environment:
+     - ORACLE_ALLOW_REMOTE=true
+     - ORACLE_DISABLE_ASYNCH_IO=true
+    ports:
+      - 49161:1521
