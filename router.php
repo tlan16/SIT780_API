@@ -60,8 +60,7 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
                 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                     sendResponse(400, 'invalid email');
                     break;
-                }
-                else $student->setEmail($email);
+                } else $student->setEmail($email);
             }
 
             // update firstname - cannot be empty
