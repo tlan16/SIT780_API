@@ -54,7 +54,7 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
 
             $student->delete();
             $student->save();
-            sendResponse();
+            return sendResponse();
         // update student
         } else if ($_SERVER['REQUEST_METHOD'] === "PUT") {
             if (!isAdmin())
@@ -147,13 +147,16 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
         }
         break;
     case '/sensor':
-        if (!isLoggedIn())
-            return sendResponse(403);
+        if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            if (!isLoggedIn())
+                return sendResponse(403);
 
-        $filePath = dirname(__FILE__) . "/asset/sensor.json";
-        if (file_exists($filePath))
-            return sendResponse(200, json_decode(file_get_contents($filePath), true));
-        return sendResponse(500, 'missing sensor data file.');
+            $filePath = dirname(__FILE__) . "/../asset/sensor.json";
+            if (file_exists($filePath))
+                return sendResponse(200, json_decode(file_get_contents($filePath), true));
+            return sendResponse(500, 'missing sensor data file.');
+        }
+        break;
     case '/login':
         if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $studentId = $_SERVER['PHP_AUTH_USER'] ?: '';
