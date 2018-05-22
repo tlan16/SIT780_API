@@ -111,6 +111,17 @@ class Session extends oracle
         return false;
     }
 
+    public function delete()
+    {
+        $sql = "
+            DELETE SESSIONS s
+            where s.TOKEN = :token
+        ";
+
+        $params = ['token' => $this->getToken()];
+        $this->exec($sql, $params, false);
+    }
+
     public static function generateToken()
     {
         return sha1(microtime());

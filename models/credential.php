@@ -14,6 +14,11 @@ class Credential extends oracle
     private $password = '';
 
     /**
+     * @var bool
+     */
+    private $isAdmin = false;
+
+    /**
      * @return string
      */
     public function getStudentId(): string
@@ -45,6 +50,22 @@ class Credential extends oracle
         $this->password = $password;
     }
 
+    /**
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->isAdmin;
+    }
+
+    /**
+     * @param bool $isAdmin
+     */
+    private function setIsAdmin(bool $isAdmin): void
+    {
+        $this->isAdmin = $isAdmin;
+    }
+
     public function load($studentId)
     {
         $sql = "
@@ -60,6 +81,7 @@ class Credential extends oracle
             if ($row && !empty($row['STUDENT_ID']) && !empty($row['PASSWORD'])) {
                 $this->setUsername($row['STUDENT_ID']);
                 $this->setPassword($row['PASSWORD']);
+                $this->setIsAdmin((bool)$row['IS_ADMIN']);
                 return $this;
             }
         }

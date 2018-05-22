@@ -3,6 +3,27 @@
 include_once dirname(__FILE__) . "/../models/student.php";
 include_once dirname(__FILE__) . '/../models/credential.php';
 include_once dirname(__FILE__) . '/../models/session.php';
+include_once dirname(__FILE__) . '/../helpers/auth_helpers.php';
+
+function isLoggedIn()
+{
+    $token = getBearerToken();
+    if (empty($token))
+        return false;
+
+    $session = (new Session())->loadByToken($token);
+    return $session instanceof Session ? $session : false;
+}
+
+function isAdmin()
+{
+    $session = isLoggedIn();
+    if (!$session instanceof Session)
+        return false;
+
+    $credential = (new Credential())->load($session->getStudentId());
+    return $credential instanceof Credential && $credential->isAdmin() === true;
+}
 
 switch (strtok($_SERVER["REQUEST_URI"], '?')) {
     case '/':
@@ -10,12 +31,18 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
             return sendResponse(200, ['Hello', 'API']);
         break;
     case '/students':
+        if (!isLoggedIn())
+            return sendResponse(403);
+
         if ($_SERVER['REQUEST_METHOD'] === "GET")
             return sendResponse(200, Student::getAll());
         break;
     case '/student':
         // delete student
         if ($_SERVER['REQUEST_METHOD'] === "DELETE") {
+            if (!isAdmin())
+                return sendResponse(403);
+
             if (empty($_GET['id']))
                 return sendResponse(400, 'missing required query parameter `id`');
 
@@ -30,6 +57,9 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
             sendResponse();
         // update student
         } else if ($_SERVER['REQUEST_METHOD'] === "PUT") {
+            if (!isAdmin())
+                return sendResponse(403);
+
             if (empty($_GET['id']))
                 return sendResponse(400, 'missing required query parameter `id`');
 
@@ -67,6 +97,9 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
             return sendResponse();
         // create student
         } else if ($_SERVER['REQUEST_METHOD'] === "POST") {
+            if (!isAdmin())
+                return sendResponse(403);
+
             // validate payload
             if (empty($_POST['id']))
                 return sendResponse(400, 'missing required query parameter `id`');
@@ -114,22 +147,40 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
         }
         break;
     case '/sensor':
+        if (!isLoggedIn())
+            return sendResponse(403);
+
         $filePath = dirname(__FILE__) . "/asset/sensor.json";
         if (file_exists($filePath))
             return sendResponse(200, json_decode(file_get_contents($filePath), true));
         return sendResponse(500, 'missing sensor data file.');
     case '/login':
-        $studentId = $_SERVER['PHP_AUTH_USER'] ?: '';
-        $password = $_SERVER['PHP_AUTH_PW'] ?: '';
+        if ($_SERVER['REQUEST_METHOD'] === "POST") {
+            $studentId = $_SERVER['PHP_AUTH_USER'] ?: '';
+            $password = $_SERVER['PHP_AUTH_PW'] ?: '';
 
-        $credential = (new Credential())->load($studentId);
-        if (
-            !$credential instanceof Credential
-            || !$credential->verifyPassword($password)
-        ) return sendResponse(403);
+            $credential = (new Credential())->load($studentId);
+            if (
+                !$credential instanceof Credential
+                || !$credential->verifyPassword($password)
+            ) return sendResponse(403);
 
-        $session = Session::create($studentId);
-        return sendResponse(200, $session->getToken());
+            $session = Session::create($studentId);
+            return sendResponse(200, $session->getToken());
+        }
+        break;
+    case '/logout':
+        if ($_SERVER['REQUEST_METHOD'] === "DELETE") {
+            $token = getBearerToken();
+            if (empty($token))
+                return sendResponse();
+
+            $session = (new Session())->loadByToken($token);
+            if ($session instanceof Session)
+                $session->delete();
+            return sendResponse(200);
+        }
+        break;
 }
 
 // 404
