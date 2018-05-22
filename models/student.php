@@ -45,7 +45,7 @@ class Student
     /**
      * @return string
      */
-    public function getId(): string
+    public function getId()
     {
         return $this->id;
     }
@@ -53,7 +53,7 @@ class Student
     /**
      * @return string
      */
-    public function getEmail(): string
+    public function getEmail()
     {
         return $this->email;
     }
@@ -61,7 +61,7 @@ class Student
     /**
      * @param string $email
      */
-    public function setEmail(string $email): void
+    public function setEmail(string $email)
     {
         $this->email = $email;
     }
@@ -69,7 +69,7 @@ class Student
     /**
      * @return string
      */
-    public function getFirstname(): string
+    public function getFirstname()
     {
         return $this->firstname;
     }
@@ -77,7 +77,7 @@ class Student
     /**
      * @param string $firstname
      */
-    public function setFirstname(string $firstname): void
+    public function setFirstname(string $firstname)
     {
         $this->firstname = $firstname;
     }
@@ -93,7 +93,7 @@ class Student
     /**
      * @param string $lastname
      */
-    public function setLastname(string $lastname): void
+    public function setLastname(string $lastname)
     {
         $this->lastname = $lastname;
     }
@@ -101,7 +101,7 @@ class Student
     /**
      * @return string
      */
-    public function getAddress(): string
+    public function getAddress()
     {
         return $this->address;
     }
@@ -109,7 +109,7 @@ class Student
     /**
      * @param string $address
      */
-    public function setAddress(string $address): void
+    public function setAddress(string $address)
     {
         $this->address = $address;
     }
@@ -117,7 +117,7 @@ class Student
     public function delete()
     {
         unset($this->students[$this->id]);
-        unset($this->id);
+        $this->id = null;
     }
 
     /**
@@ -125,7 +125,7 @@ class Student
      */
     public function save()
     {
-        if ($this->id) {
+        if ($this->getId()) {
             // init new student
             if (!$this->students[$this->id])
                 $this->students[$this->id] = array(
