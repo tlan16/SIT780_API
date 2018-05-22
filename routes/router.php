@@ -3,14 +3,14 @@
 switch (strtok($_SERVER["REQUEST_URI"], '?')) {
     case '/':
         if ($_SERVER['REQUEST_METHOD'] === "GET") {
-            sendResponse(['Hello', 'API']);
+            sendResponse(200, ['Hello', 'API']);
             break;
         }
         break;
     case '/students':
         if ($_SERVER['REQUEST_METHOD'] === "GET") {
-            include_once "models/student.php";
-            sendResponse(Student::getAll());
+            include_once dirname(__FILE__) . "/../models/student.php";
+            sendResponse(200, Student::getAll());
             break;
         }
         break;
@@ -21,7 +21,7 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
                 sendResponse(400, 'missing required query parameter `id`');
             else {
                 $id = $_GET['id'];
-                include_once "models/student.php";
+                include_once dirname(__FILE__) . "/../models/student.php";
 
                 // check student exist
                 $student = Student::getById($id);
@@ -35,14 +35,14 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
                 sendResponse();
                 break;
             }
-        // update student
+            // update student
         } else if ($_SERVER['REQUEST_METHOD'] === "PUT") {
             if (empty($_GET['id'])) {
                 sendResponse(400, 'missing required query parameter `id`');
                 break;
             }
             $id = $_GET['id'];
-            include_once "models/student.php";
+            include_once dirname(__FILE__) . "/../models/student.php";
 
             // check student exist
             $student = Student::getById($id);
@@ -78,7 +78,7 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
             $student->save();
             sendResponse();
             break;
-        // create student
+            // create student
         } else if ($_SERVER['REQUEST_METHOD'] === "POST") {
             // validate payload
             if (empty($_POST['id'])) {
@@ -98,7 +98,7 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
 
             $email = $_POST['email'] ?: '';
             $address = $_POST['address'] ?: '';
-            include_once "models/student.php";
+            include_once dirname(__FILE__) .  "/../models/student.php";
 
             // validate student NOT exist
             $student = Student::getById($id);
@@ -138,6 +138,21 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
         if (file_exists($filePath))
             sendResponse(200, json_decode(file_get_contents($filePath), true));
         else sendResponse(500, 'missing sensor data file.');
+        break;
+    case '/login':
+        include_once dirname(__FILE__) . '/../models/credential.php';
+        include_once dirname(__FILE__) . '/../models/session.php';
+        $studentId = $_SERVER['PHP_AUTH_USER'] ?: '';
+        $password = $_SERVER['PHP_AUTH_PW'] ?: '';
+
+        $credential = (new Credential())->load($studentId);
+        if (
+            !$credential instanceof Credential
+            || !$credential->verifyPassword($password)
+        ) return sendResponse(403);
+
+        $session = Session::create($studentId);
+        return sendResponse(200, $session->getToken());
         break;
 }
 

@@ -1,4 +1,4 @@
 <?php
 
-include_once "json_response.php";
-include_once "router.php";
+include_once dirname(__FILE__) . '/helpers/index.php';
+include_once dirname(__FILE__) . '/routes/index.php';

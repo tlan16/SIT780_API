@@ -117,6 +117,7 @@ class Student
     public function delete()
     {
         unset($this->students[$this->id]);
+        unset($this->id);
     }
 
     /**
@@ -217,5 +218,6 @@ class Student
     {
         if (isset(self::getAll()[$id]))
             return new self($id);
+        return null;
     }
 }

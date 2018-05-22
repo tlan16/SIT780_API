@@ -1,7 +1,13 @@
 version: '3'
 services:
-  oracle:
-    build: .
+  api:
+    build: docker/php
+    depends_on:
+      - database
+    links:
+      - "database:database"
+  database:
+    build: docker/database
     environment:
      - ORACLE_ALLOW_REMOTE=true
      - ORACLE_DISABLE_ASYNCH_IO=true

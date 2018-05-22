@@ -2,6 +2,8 @@
 /**
  * @param int $code
  * @param $payload array|string|null
+ *
+ * @return bool
  */
 function sendResponse($code = 200, $payload = null)
 {
@@ -23,4 +25,6 @@ function sendResponse($code = 200, $payload = null)
     ob_end_flush();
     ob_flush();
     flush();
+
+    return true;
 }
