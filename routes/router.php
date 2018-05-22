@@ -1,55 +1,43 @@
 <?php
 
+include_once dirname(__FILE__) . "/../models/student.php";
+include_once dirname(__FILE__) . '/../models/credential.php';
+include_once dirname(__FILE__) . '/../models/session.php';
+
 switch (strtok($_SERVER["REQUEST_URI"], '?')) {
     case '/':
-        if ($_SERVER['REQUEST_METHOD'] === "GET") {
-            sendResponse(200, ['Hello', 'API']);
-            break;
-        }
+        if ($_SERVER['REQUEST_METHOD'] === "GET")
+            return sendResponse(200, ['Hello', 'API']);
         break;
     case '/students':
-        if ($_SERVER['REQUEST_METHOD'] === "GET") {
-            include_once dirname(__FILE__) . "/../models/student.php";
-            sendResponse(200, Student::getAll());
-            break;
-        }
+        if ($_SERVER['REQUEST_METHOD'] === "GET")
+            return sendResponse(200, Student::getAll());
         break;
     case '/student':
         // delete student
         if ($_SERVER['REQUEST_METHOD'] === "DELETE") {
             if (empty($_GET['id']))
-                sendResponse(400, 'missing required query parameter `id`');
-            else {
-                $id = $_GET['id'];
-                include_once dirname(__FILE__) . "/../models/student.php";
+                return sendResponse(400, 'missing required query parameter `id`');
 
-                // check student exist
-                $student = Student::getById($id);
-                if (!$student instanceof Student) {
-                    sendResponse(400, "student with id $id does not exist");
-                    break;
-                }
-
-                $student->delete();
-                $student->save();
-                sendResponse();
-                break;
-            }
-            // update student
-        } else if ($_SERVER['REQUEST_METHOD'] === "PUT") {
-            if (empty($_GET['id'])) {
-                sendResponse(400, 'missing required query parameter `id`');
-                break;
-            }
             $id = $_GET['id'];
-            include_once dirname(__FILE__) . "/../models/student.php";
-
             // check student exist
             $student = Student::getById($id);
-            if (!$student instanceof Student) {
-                sendResponse(400, "student with id $id does not exist");
-                break;
-            }
+            if (!$student instanceof Student)
+                return sendResponse(400, "student with id $id does not exist");
+
+            $student->delete();
+            $student->save();
+            sendResponse();
+        // update student
+        } else if ($_SERVER['REQUEST_METHOD'] === "PUT") {
+            if (empty($_GET['id']))
+                return sendResponse(400, 'missing required query parameter `id`');
+
+            $id = $_GET['id'];
+            // check student exist
+            $student = Student::getById($id);
+            if (!$student instanceof Student)
+                return sendResponse(400, "student with id $id does not exist");
 
             // get payload
             parse_str(file_get_contents("php://input"), $payload);
@@ -76,44 +64,37 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
                 $student->setAddress($payload['address']);
 
             $student->save();
-            sendResponse();
-            break;
-            // create student
+            return sendResponse();
+        // create student
         } else if ($_SERVER['REQUEST_METHOD'] === "POST") {
             // validate payload
-            if (empty($_POST['id'])) {
-                sendResponse(400, 'missing required query parameter `id`');
-                break;
-            } else $id = $_POST['id'];
+            if (empty($_POST['id']))
+                return sendResponse(400, 'missing required query parameter `id`');
+            $id = $_POST['id'];
 
-            if (empty($_POST['firstname'])) {
-                sendResponse(400, 'missing required query parameter `firstname`');
-                break;
-            } else $firstname = $_POST['firstname'];
+            if (empty($_POST['firstname']))
+                return sendResponse(400, 'missing required query parameter `firstname`');
+            $firstname = $_POST['firstname'];
 
-            if (empty($_POST['lastname'])) {
-                sendResponse(400, 'missing required query parameter `lastname`');
-                break;
-            } else $firstname = $_POST['lastname'];
+            if (empty($_POST['lastname']))
+                return sendResponse(400, 'missing required query parameter `lastname`');
+            $firstname = $_POST['lastname'];
 
             $email = $_POST['email'] ?: '';
             $address = $_POST['address'] ?: '';
-            include_once dirname(__FILE__) .  "/../models/student.php";
 
             // validate student NOT exist
             $student = Student::getById($id);
-            if ($student instanceof Student) {
-                sendResponse(400, "student with id $id already exist");
-                break;
-            }
+            if ($student instanceof Student)
+                return sendResponse(400, "student with id $id already exist");
             $student = new Student($id);
 
             // email
             if (isset($_POST['email'])) {
                 $email = $_POST['email'];
                 if (!filter_var($email, FILTER_VALIDATE_EMAIL))
-                    sendResponse(400, 'invalid email');
-                else $student->setEmail($email);
+                    return sendResponse(400, 'invalid email');
+                $student->setEmail($email);
             }
 
             // firstname - cannot be empty
@@ -129,19 +110,15 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
                 $student->setAddress($_POST['address']);
 
             $student->save();
-            sendResponse();
-            break;
+            return sendResponse();
         }
         break;
     case '/sensor':
         $filePath = dirname(__FILE__) . "/asset/sensor.json";
         if (file_exists($filePath))
-            sendResponse(200, json_decode(file_get_contents($filePath), true));
-        else sendResponse(500, 'missing sensor data file.');
-        break;
+            return sendResponse(200, json_decode(file_get_contents($filePath), true));
+        return sendResponse(500, 'missing sensor data file.');
     case '/login':
-        include_once dirname(__FILE__) . '/../models/credential.php';
-        include_once dirname(__FILE__) . '/../models/session.php';
         $studentId = $_SERVER['PHP_AUTH_USER'] ?: '';
         $password = $_SERVER['PHP_AUTH_PW'] ?: '';
 
@@ -153,7 +130,6 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
 
         $session = Session::create($studentId);
         return sendResponse(200, $session->getToken());
-        break;
 }
 
 // 404
