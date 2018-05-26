@@ -23,7 +23,7 @@ class Session extends oracle
     /**
      * @return string
      */
-    public function getStudentId(): string
+    public function getStudentId()
     {
         return $this->studentId;
     }
@@ -31,7 +31,7 @@ class Session extends oracle
     /**
      * @param string $studentId
      */
-    private function setStudentId(string $studentId): void
+    private function setStudentId($studentId)
     {
         $this->studentId = $studentId;
     }
@@ -39,7 +39,7 @@ class Session extends oracle
     /**
      * @return string
      */
-    public function getToken(): string
+    public function getToken()
     {
         return $this->token;
     }
@@ -47,15 +47,15 @@ class Session extends oracle
     /**
      * @param string $token
      */
-    private function setToken(string $token): void
+    private function setToken($token)
     {
         $this->token = $token;
     }
 
     /**
-     * @return DateTime|null
+     * @return DateTime|string|null
      */
-    public function getExpiry(): ?DateTime
+    public function getExpiry()
     {
         return $this->expiry;
     }
@@ -63,7 +63,7 @@ class Session extends oracle
     /**
      * @param DateTime|null $expiry
      */
-    private function setExpiry(?DateTime $expiry): void
+    private function setExpiry($expiry)
     {
         $this->expiry = $expiry;
     }
@@ -89,7 +89,10 @@ class Session extends oracle
     public function loadByToken($token)
     {
         $sql = "
-            SELECT *
+            SELECT 
+              s.STUDENT_ID
+              , s.TOKEN
+              , to_char(s.EXPIRY, 'yyyy-mm-dd') || 'T' || to_char(s.EXPIRY,'hh24:mi:ss') || sessiontimezone EXPIRY
             FROM SESSIONS s
             where s.TOKEN = :token
                   AND s.EXPIRY > current_timestamp
@@ -146,5 +149,14 @@ class Session extends oracle
         $session->exec($sql, $params, false);
 
         return $session->loadByToken($token);
+    }
+
+    public function toArray()
+    {
+        return array(
+            'studentId' => $this->getStudentId(),
+            'token' => $this->getToken(),
+            'expiry' => $this->getExpiry()->format(DATE_W3C),
+        );
     }
 }

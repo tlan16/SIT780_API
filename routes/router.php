@@ -169,7 +169,11 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
             ) return sendResponse(403);
 
             $session = Session::create($studentId);
-            return sendResponse(200, $session->getToken());
+
+            $responsePayload = $credential->toArray(array(
+                'session' => $session->toArray(),
+            ));
+            return sendResponse(200, $responsePayload);
         }
         break;
     case '/logout':
