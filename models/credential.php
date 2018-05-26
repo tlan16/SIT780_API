@@ -1,5 +1,6 @@
 <?php
 include_once dirname(__FILE__) . '/oracle.php';
+include_once dirname(__FILE__) . '/../models/student.php';
 
 class Credential extends oracle
 {
@@ -94,5 +95,28 @@ class Credential extends oracle
         if (empty($userInput) || empty($this->password))
             return false;
         return passwordVerify($userInput, $this->getPassword());
+    }
+
+    public function toArray($extra)
+    {
+        $result = array(
+            'studentId' => $this->getStudentId(),
+            'isAdmin' => $this->isAdmin(),
+            'student' => null,
+        );
+
+        $student = $this->getStudent();
+        if ($student instanceof Student)
+            $result['student'] = $student->toArray();
+
+        if (is_array($extra))
+            $result = array_merge($result, $extra);
+
+        return $result;
+    }
+
+    public function getStudent()
+    {
+        return Student::getById($this->studentId);
     }
 }

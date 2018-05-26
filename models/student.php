@@ -39,6 +39,13 @@ class Student
     public function __construct($id)
     {
         $this->students = self::getAll();
+        if (isset($this->students[$this->id]))
+            $this->load($id);
+        $this->setId($id);
+    }
+
+    private function setId($id)
+    {
         $this->id = $id;
     }
 
@@ -61,7 +68,7 @@ class Student
     /**
      * @param string $email
      */
-    public function setEmail(string $email)
+    public function setEmail($email)
     {
         $this->email = $email;
     }
@@ -77,7 +84,7 @@ class Student
     /**
      * @param string $firstname
      */
-    public function setFirstname(string $firstname)
+    public function setFirstname($firstname)
     {
         $this->firstname = $firstname;
     }
@@ -85,7 +92,7 @@ class Student
     /**
      * @return string
      */
-    public function getLastname(): string
+    public function getLastname()
     {
         return $this->lastname;
     }
@@ -127,7 +134,7 @@ class Student
     {
         if ($this->getId()) {
             // init new student
-            if (!$this->students[$this->id])
+            if (!isset($this->students[$this->id]))
                 $this->students[$this->id] = array(
                     'student_id' => $this->id,
                 );
@@ -219,5 +226,28 @@ class Student
         if (isset(self::getAll()[$id]))
             return new self($id);
         return null;
+    }
+
+    public function load($id)
+    {
+        $data = self::getAll()[$id];
+        if (!empty($data)) {
+            $this->setId($data['student_id']);
+            $this->setEmail($data['email']);
+            $this->setFirstname($data['firstname']);
+            $this->setLastname($data['lastname']);
+            $this->setAddress($data['address']);
+        }
+    }
+
+    public function toArray()
+    {
+        return array(
+            'id' => $this->getId(),
+            'email' => $this->getEmail(),
+            'firstname' => $this->getFirstname(),
+            'lastname' => $this->getLastname(),
+            'address' => $this->getAddress(),
+        );
     }
 }
