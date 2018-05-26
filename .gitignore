@@ -7,4 +7,5 @@ composer.phar
 
 /.idea
 
-.env
+/.env
+/.env.prod

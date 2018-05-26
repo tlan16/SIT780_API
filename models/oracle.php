@@ -20,10 +20,12 @@ abstract class oracle
         $conn = oci_connect(
             getDotEnv('DB_USERNAME'),
             getDotEnv('DB_PASSWORD'),
-            getDotEnv('DB_HOST') . '/XE');
+            getDotEnv('DB_HOST'));
+
         if (!$conn) {
             $e = oci_error();
             trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+            throw new Exception($e['message']);
         }
 
         $this->connection = $conn;

@@ -22,7 +22,7 @@ class Credential extends oracle
     /**
      * @return string
      */
-    public function getStudentId(): string
+    public function getStudentId()
     {
         return $this->studentId;
     }
@@ -30,7 +30,7 @@ class Credential extends oracle
     /**
      * @param string $username
      */
-    private function setUsername(string $username): void
+    private function setUsername($username)
     {
         $this->studentId = $username;
     }
@@ -38,7 +38,7 @@ class Credential extends oracle
     /**
      * @return string
      */
-    public function getPassword(): string
+    public function getPassword()
     {
         return $this->password;
     }
@@ -46,7 +46,7 @@ class Credential extends oracle
     /**
      * @param string $password
      */
-    private function setPassword(string $password): void
+    private function setPassword($password)
     {
         $this->password = $password;
     }
@@ -54,7 +54,7 @@ class Credential extends oracle
     /**
      * @return bool
      */
-    public function isAdmin(): bool
+    public function isAdmin()
     {
         return $this->isAdmin;
     }
@@ -62,7 +62,7 @@ class Credential extends oracle
     /**
      * @param bool $isAdmin
      */
-    private function setIsAdmin(bool $isAdmin): void
+    private function setIsAdmin($isAdmin)
     {
         $this->isAdmin = $isAdmin;
     }
@@ -74,7 +74,7 @@ class Credential extends oracle
               FROM CREDENTIALS c
             WHERE c.STUDENT_ID = :student_id
         ";
-        $params = ['student_id' => $studentId];
+        $params = array('student_id' => $studentId);
 
         $results = $this->exec($sql, $params);
 
@@ -117,6 +117,7 @@ class Credential extends oracle
 
     public function getStudent()
     {
-        return Student::getById($this->studentId);
+        $student = Student::getById($this->studentId);
+        return $student->load($this->studentId);
     }
 }

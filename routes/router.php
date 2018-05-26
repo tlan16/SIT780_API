@@ -7,11 +7,12 @@ include_once dirname(__FILE__) . '/../helpers/auth_helpers.php';
 
 function isLoggedIn()
 {
-    $token = getBearerToken();
+    $token = $_GET['token'];
     if (empty($token))
         return false;
 
-    $session = (new Session())->loadByToken($token);
+    $session = new Session();
+    $session = $session->loadByToken($token);
     return $session instanceof Session ? $session : false;
 }
 
@@ -21,14 +22,17 @@ function isAdmin()
     if (!$session instanceof Session)
         return false;
 
-    $credential = (new Credential())->load($session->getStudentId());
+    $credential = new Credential();
+    $credential = $credential->load($session->getStudentId());
     return $credential instanceof Credential && $credential->isAdmin() === true;
 }
 
-switch (strtok($_SERVER["REQUEST_URI"], '?')) {
+$uri = strtok($_SERVER["REQUEST_URI"], '?');
+$uri = str_replace(getDotEnv('BASE_URI'), '', $uri);
+switch ($uri) {
     case '/':
         if ($_SERVER['REQUEST_METHOD'] === "GET")
-            return sendResponse(200, ['Hello', 'API']);
+            return sendResponse(200, array('Hello', 'API'));
         break;
     case '/students':
         if (!isLoggedIn())
@@ -55,7 +59,7 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
             $student->delete();
             $student->save();
             return sendResponse();
-        // update student
+            // update student
         } else if ($_SERVER['REQUEST_METHOD'] === "PUT") {
             if (!isAdmin())
                 return sendResponse(403);
@@ -95,7 +99,7 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
 
             $student->save();
             return sendResponse();
-        // create student
+            // create student
         } else if ($_SERVER['REQUEST_METHOD'] === "POST") {
             if (!isAdmin())
                 return sendResponse(403);
@@ -113,8 +117,8 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
                 return sendResponse(400, 'missing required query parameter `lastname`');
             $firstname = $_POST['lastname'];
 
-            $email = $_POST['email'] ?: '';
-            $address = $_POST['address'] ?: '';
+            $email = empty($_POST['email']) ? '' : $_POST['email'];
+            $address = empty($_POST['address']) ? '' : $_POST['address'];
 
             // validate student NOT exist
             $student = Student::getById($id);
@@ -159,10 +163,11 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
         break;
     case '/login':
         if ($_SERVER['REQUEST_METHOD'] === "POST") {
-            $studentId = $_SERVER['PHP_AUTH_USER'] ?: '';
-            $password = $_SERVER['PHP_AUTH_PW'] ?: '';
+            $studentId = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
+            $password = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : '';
 
-            $credential = (new Credential())->load($studentId);
+            $credential = new Credential();
+            $credential = $credential->load($studentId);
             if (
                 !$credential instanceof Credential
                 || !$credential->verifyPassword($password)
@@ -182,7 +187,8 @@ switch (strtok($_SERVER["REQUEST_URI"], '?')) {
             if (empty($token))
                 return sendResponse();
 
-            $session = (new Session())->loadByToken($token);
+            $session = new Session();
+            $session = $session->loadByToken($token);
             if ($session instanceof Session)
                 $session->delete();
             return sendResponse(200);

@@ -100,7 +100,7 @@ class Student
     /**
      * @param string $lastname
      */
-    public function setLastname(string $lastname)
+    public function setLastname($lastname)
     {
         $this->lastname = $lastname;
     }
@@ -116,7 +116,7 @@ class Student
     /**
      * @param string $address
      */
-    public function setAddress(string $address)
+    public function setAddress($address)
     {
         $this->address = $address;
     }
@@ -223,20 +223,26 @@ class Student
 
     public static function getById($id)
     {
-        if (isset(self::getAll()[$id]))
-            return new self($id);
+        $students = self::getAll();
+        if ($students && isset($students[$id])) {
+           $student = new self($id);
+           $student->load($id);
+           return $student;
+        }
         return null;
     }
 
     public function load($id)
     {
-        $data = self::getAll()[$id];
-        if (!empty($data)) {
+        $students = self::getAll();
+        if ($students && !empty($students[$id])) {
+            $data = $students[$id];
             $this->setId($data['student_id']);
             $this->setEmail($data['email']);
             $this->setFirstname($data['firstname']);
             $this->setLastname($data['lastname']);
             $this->setAddress($data['address']);
+            return $this;
         }
     }
 

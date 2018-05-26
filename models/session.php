@@ -61,7 +61,7 @@ class Session extends oracle
     }
 
     /**
-     * @param DateTime|null $expiry
+     * @param string|null $expiry
      */
     private function setExpiry($expiry)
     {
@@ -75,7 +75,7 @@ class Session extends oracle
             SET EXPIRY = current_timestamp + interval '" . self::TTL . "' second
             WHERE s.TOKEN = :token
         ";
-        $params = ['token' => $this->token];
+        $params = array('token' => $this->token);
 
         $this->exec($sql, $params);
     }
@@ -97,7 +97,7 @@ class Session extends oracle
             where s.TOKEN = :token
                   AND s.EXPIRY > current_timestamp
         ";
-        $params = ['token' => $token];
+        $params = array('token' => $token);
 
         $result = $this->exec($sql, $params);
 
@@ -106,7 +106,7 @@ class Session extends oracle
                 $this->setStudentId($row['STUDENT_ID']);
                 $this->setToken($row['TOKEN']);
                 if ($row['EXPIRY'])
-                    $this->setExpiry(new DateTime($row['EXPIRY']));
+                    $this->setExpiry($row['EXPIRY']);
                 return $this;
             }
         }
@@ -121,7 +121,7 @@ class Session extends oracle
             where s.TOKEN = :token
         ";
 
-        $params = ['token' => $this->getToken()];
+        $params = array('token' => $this->getToken());
         $this->exec($sql, $params, false);
     }
 
@@ -156,7 +156,7 @@ class Session extends oracle
         return array(
             'studentId' => $this->getStudentId(),
             'token' => $this->getToken(),
-            'expiry' => $this->getExpiry()->format(DATE_W3C),
+            'expiry' => $this->getExpiry(),
         );
     }
 }
