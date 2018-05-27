@@ -205,8 +205,10 @@ class Student
         foreach ($xml->student as $studentXml) {
             $student = array();
 
-            foreach ($studentXml as $key => $value)
+            foreach ($studentXml as $key => $value) {
+                $key = (String)$key;
                 $student[$key] = (String)$value;
+            }
 
             if (!$student['student_id'])
                 continue;

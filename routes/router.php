@@ -38,8 +38,12 @@ switch ($uri) {
         if (!isLoggedIn())
             return sendResponse(403);
 
-        if ($_SERVER['REQUEST_METHOD'] === "GET")
-            return sendResponse(200, Student::getAll());
+        if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            $students = array();
+            foreach (Student::getAll() as $student)
+                $students[] = $student;
+            return sendResponse(200, $students);
+        }
         break;
     case '/student':
         // delete student
@@ -129,7 +133,7 @@ switch ($uri) {
             // email
             if (isset($_POST['email'])) {
                 $email = $_POST['email'];
-                if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+                if (!verify_email($email))
                     return sendResponse(400, 'invalid email');
                 $student->setEmail($email);
             }
